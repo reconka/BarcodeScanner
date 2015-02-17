@@ -718,6 +718,28 @@ parentViewController:(UIViewController*)parentViewController
     [self.processor performSelector:@selector(flipCamera) withObject:nil afterDelay:0];
 }
 
+- (void)torchlightturn:(id)sender
+{
+ 
+    
+    AVCaptureDevice *flashLight = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo]; // zoltan mod
+    if ([flashLight isTorchAvailable] && [flashLight isTorchModeSupported:AVCaptureTorchModeOn])
+    {
+        BOOL success = [flashLight lockForConfiguration:nil];
+        if (success) 
+        {
+            if ([flashLight isTorchActive]) {
+                [flashLight setTorchMode:AVCaptureTorchModeOff];
+            } else {
+                [flashLight setTorchMode:AVCaptureTorchModeOn];
+            }
+            [flashLight unlockForConfiguration];
+        }
+    }
+    
+    
+}
+
 //--------------------------------------------------------------------------
 - (UIView *)buildOverlayViewFromXib 
 {
@@ -750,6 +772,12 @@ parentViewController:(UIViewController*)parentViewController
     UIToolbar* toolbar = [[[UIToolbar alloc] init] autorelease];
     toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
     
+    id torchlight = [[[UIBarButtonItem alloc] autorelease]
+                       initWithBarButtonSystemItem:UIBarButtonSystemItemCamera
+                       target:(id)self
+                       action:@selector(torchlightturn:)
+                       ];
+    
     id cancelButton = [[[UIBarButtonItem alloc] autorelease]
                        initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                        target:(id)self
@@ -764,7 +792,7 @@ parentViewController:(UIViewController*)parentViewController
                     ];
     
     id flipCamera = [[[UIBarButtonItem alloc] autorelease]
-                       initWithBarButtonSystemItem:UIBarButtonSystemItemCamera
+                       initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
                        target:(id)self
                        action:@selector(flipCameraButtonPressed:)
                        ];
@@ -777,9 +805,9 @@ parentViewController:(UIViewController*)parentViewController
                         action:@selector(shutterButtonPressed)
                         ];
     
-    toolbar.items = [NSArray arrayWithObjects:flexSpace,cancelButton,flexSpace, flipCamera ,shutterButton,nil];
+    toolbar.items = [NSArray arrayWithObjects:torchlight,flexSpace,cancelButton,flexSpace, flipCamera ,shutterButton,nil];
 #else
-    toolbar.items = [NSArray arrayWithObjects:flexSpace,cancelButton,flexSpace, flipCamera,nil];
+    toolbar.items = [NSArray arrayWithObjects:torchlight,flexSpace,cancelButton,flexSpace, flipCamera,nil];
 #endif
     bounds = overlayView.bounds;
     
